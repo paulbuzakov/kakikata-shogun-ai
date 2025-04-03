@@ -1,0 +1,18 @@
+
+# Ignore all binaly files and folders.
+**/bin
+**/obj
+
+# Ignore all transform version for appsettings files.
+**/appsettings.*.json
+
+# Ignore all publish files and folders.
+**/.idea
+**/.vs
+**/.vscode
+
+# Ignore all user specific files.
+**/*.user
+
+# Ignore MacOS's Finder creates a .DS_Store file in every folder.
+**/.DS_Store
