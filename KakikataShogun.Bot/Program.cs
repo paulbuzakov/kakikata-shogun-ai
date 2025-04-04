@@ -1,6 +1,7 @@
 ﻿using KakikataShogun.Bot;
 using KakikataShogun.Bot.Handlers;
 using KakikataShogun.Bot.Interfaces;
+using KakikataShogun.Bot.MessageBuilders;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -26,6 +27,10 @@ var host = Host.CreateDefaultBuilder(args)
             services.AddSingleton<ITelegramBotClient>(
                 new TelegramBotClient(configuration.GetValue("TelegramBot:Token", string.Empty))
             );
+
+            services.AddTransient<IMessageBuilderFactory, MessageBuilderFactory>();
+            services.AddTransient<IMessageBuilder, DefaultMessageBuilder>();
+            services.AddTransient<IMessageBuilder, WelcomeMessageBuilder>();
         }
     )
     .Build();
