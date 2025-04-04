@@ -5,6 +5,7 @@ using KakikataShogun.Bot.MessageBuilders;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using OpenAI.Chat;
 using Telegram.Bot;
 
 var host = Host.CreateDefaultBuilder(args)
@@ -26,6 +27,13 @@ var host = Host.CreateDefaultBuilder(args)
             services.AddTransient<ITelegramBotErrorHandler, TelegramBotErrorHandler>();
             services.AddSingleton<ITelegramBotClient>(
                 new TelegramBotClient(configuration.GetValue("TelegramBot:Token", string.Empty))
+            );
+
+            services.AddSingleton<ChatClient>(
+                new ChatClient(
+                    configuration.GetValue("OpenAI:Model", string.Empty),
+                    configuration.GetValue("OpenAI:Token", string.Empty)
+                )
             );
 
             services.AddTransient<IMessageBuilderFactory, MessageBuilderFactory>();

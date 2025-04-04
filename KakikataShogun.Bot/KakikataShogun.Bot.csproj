@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="OpenAI" Version="2.1.0" />
     <PackageReference Include="Telegram.Bot" Version="22.4.4" />
   </ItemGroup>
 
