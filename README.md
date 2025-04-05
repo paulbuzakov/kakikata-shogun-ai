@@ -1,4 +1,4 @@
-# Kakikata Shogun Bot 🏯⚔️
+# Kakikata Shogun AI 🏯⚔️
 
 A Telegram bot that helps users improve their American English language skills. The bot uses OpenAI's GPT-4 model to provide natural, fluent corrections and explanations for English phrases.
 
@@ -31,6 +31,7 @@ A Telegram bot that helps users improve their American English language skills. 
 ## Configuration
 
 1. Create `appsettings.user.json` with your API keys:
+
 ```json
 {
   "TelegramBot": {
@@ -76,12 +77,3 @@ make stop
 make restart
 make status
 ```
-
-## License
-
-[Add your license here]
-
-## Contributing
-
-[Add contribution guidelines here]
-
