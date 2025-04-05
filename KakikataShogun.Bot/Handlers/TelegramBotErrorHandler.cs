@@ -13,7 +13,8 @@ internal class TelegramBotErrorHandler : ITelegramBotErrorHandler
         CancellationToken cancellationToken
     )
     {
-        Console.Error.WriteLine($"Ar error occurred: {exception.Message}");
+        SentrySdk.CaptureException(exception);
+
         return Task.CompletedTask;
     }
 }

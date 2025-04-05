@@ -33,6 +33,8 @@ Please correct it and make it sound natural."
         }
         catch (Exception ex)
         {
+            SentrySdk.CaptureException(ex);
+
             sb.Append($"Error: {ex.Message}");
         }
 
