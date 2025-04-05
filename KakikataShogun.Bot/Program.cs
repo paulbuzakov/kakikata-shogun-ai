@@ -2,10 +2,12 @@
 using KakikataShogun.Bot.Handlers;
 using KakikataShogun.Bot.Interfaces;
 using KakikataShogun.Bot.MessageBuilders;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OpenAI.Chat;
+using PostHog;
 using Telegram.Bot;
 
 var host = Host.CreateDefaultBuilder(args)
@@ -20,6 +22,28 @@ var host = Host.CreateDefaultBuilder(args)
         (context, services) =>
         {
             var configuration = context.Configuration;
+
+            SentrySdk.Init(options =>
+            {
+                options.Dsn = configuration.GetValue("Sentry:Dsn", string.Empty);
+                options.Debug = true;
+            });
+            services.AddSingleton<IPostHogClient>(
+                new PostHogClient(
+                    new PostHogOptions
+                    {
+                        ProjectApiKey = configuration.GetValue(
+                            "PostHog:ProjectApiKey",
+                            string.Empty
+                        ),
+                        HostUrl = new Uri(configuration.GetValue("PostHog:Host", string.Empty)),
+                        PersonalApiKey = configuration.GetValue(
+                            "PostHog:PersonalApiKey",
+                            string.Empty
+                        ),
+                    }
+                )
+            );
 
             services.AddHostedService<TelegramBotHostedService>();
 
@@ -44,3 +68,4 @@ var host = Host.CreateDefaultBuilder(args)
     .Build();
 
 await host.RunAsync(default);
+

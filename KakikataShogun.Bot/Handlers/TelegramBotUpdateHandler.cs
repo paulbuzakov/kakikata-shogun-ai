@@ -1,11 +1,14 @@
 using KakikataShogun.Bot.Interfaces;
+using PostHog;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
 namespace KakikataShogun.Bot.Handlers;
 
-internal class TelegramBotUpdateHandler(IMessageBuilderFactory messageBuilderFactory)
-    : ITelegramBotUpdateHandler
+internal class TelegramBotUpdateHandler(
+    IMessageBuilderFactory messageBuilderFactory,
+    IPostHogClient postHogClient
+) : ITelegramBotUpdateHandler
 {
     public async Task HandleAsync(
         ITelegramBotClient client,
@@ -17,12 +20,23 @@ internal class TelegramBotUpdateHandler(IMessageBuilderFactory messageBuilderFac
             update.Message?.Text ?? string.Empty
         );
 
+        postHogClient.Capture(
+            Consts.AppName,
+            messageBuilder.CommandPattern,
+            properties: new()
+            {
+                ["chatId"] = update?.Message?.Chat.Id.ToString() ?? "UNKNOWN_CHAT_ID",
+                ["name"] = update?.Message?.From?.ToString() ?? "UNKNOWN_USER",
+                ["messageText"] = update?.Message?.Text ?? string.Empty,
+            }
+        );
+
         var messageText = await messageBuilder.BuildMessageAsync(
-            update.Message?.Text ?? string.Empty,
+            update?.Message?.Text ?? string.Empty,
             cancellationToken
         );
 
-        if (update.Message?.Chat.Id is not null)
+        if (update?.Message?.Chat.Id is not null)
         {
             await client.SendMessage(
                 chatId: update.Message.Chat.Id,
@@ -32,3 +46,4 @@ internal class TelegramBotUpdateHandler(IMessageBuilderFactory messageBuilderFac
         }
     }
 }
+
