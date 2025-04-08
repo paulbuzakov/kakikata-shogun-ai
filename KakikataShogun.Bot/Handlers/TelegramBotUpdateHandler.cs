@@ -31,19 +31,21 @@ internal class TelegramBotUpdateHandler(
             }
         );
 
-        var messageText = await messageBuilder.BuildMessageAsync(
+        var nextMessages = await messageBuilder.BuildMessageAsync(
             update?.Message?.Text ?? string.Empty,
             cancellationToken
         );
 
         if (update?.Message?.Chat.Id is not null)
         {
-            await client.SendMessage(
-                chatId: update.Message.Chat.Id,
-                text: messageText,
-                cancellationToken: cancellationToken
-            );
+            foreach (var message in nextMessages)
+            {
+                await client.SendMessage(
+                    chatId: update.Message.Chat.Id,
+                    text: message,
+                    cancellationToken: cancellationToken
+                );
+            }
         }
     }
 }
-

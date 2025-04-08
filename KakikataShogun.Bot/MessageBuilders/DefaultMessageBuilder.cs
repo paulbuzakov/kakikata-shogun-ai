@@ -1,4 +1,3 @@
-using System.Text;
 using KakikataShogun.Bot.Interfaces;
 using OpenAI.Chat;
 
@@ -8,9 +7,12 @@ internal class DefaultMessageBuilder(ChatClient openAIClient) : IMessageBuilder
 {
     public string CommandPattern => "default";
 
-    public async Task<string> BuildMessageAsync(string message, CancellationToken cancellationToken)
+    public async Task<string[]> BuildMessageAsync(
+        string message,
+        CancellationToken cancellationToken
+    )
     {
-        var sb = new StringBuilder();
+        var result = new List<string>();
 
         try
         {
@@ -22,22 +24,21 @@ Ensure the grammar, vocabulary, and tone are appropriate for casual, professiona
 If needed, provide a brief explanation of the changes.
 Here is my phrase:
 '{message}'.
-
 Please correct it and make it sound natural."
             );
 
             foreach (var content in completion.Content)
             {
-                sb.Append(content.Text);
+                result.Add(content.Text);
             }
         }
         catch (Exception ex)
         {
             SentrySdk.CaptureException(ex);
 
-            sb.Append($"Error: {ex.Message}");
+            result.Add($"Error: {ex.Message}");
         }
 
-        return sb.ToString();
+        return result.ToArray();
     }
 }
