@@ -2,6 +2,7 @@
 # Ignore all binaly files and folders.
 **/bin
 **/obj
+**/publish
 
 # Ignore all transform version for appsettings files.
 **/appsettings.*.json
