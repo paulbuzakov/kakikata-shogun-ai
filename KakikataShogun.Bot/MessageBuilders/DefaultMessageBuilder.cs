@@ -3,7 +3,7 @@ using OpenAI.Chat;
 
 namespace KakikataShogun.Bot.MessageBuilders;
 
-internal class DefaultMessageBuilder(ChatClient openAIClient) : IMessageBuilder
+internal class DefaultMessageBuilder(ChatClient openAiClient) : IMessageBuilder
 {
     public string CommandPattern => "default";
 
@@ -12,11 +12,9 @@ internal class DefaultMessageBuilder(ChatClient openAIClient) : IMessageBuilder
         CancellationToken cancellationToken
     )
     {
-        var result = new List<string>();
-
         try
         {
-            ChatCompletion completion = await openAIClient.CompleteChatAsync(
+            ChatCompletion completion = await openAiClient.CompleteChatAsync(
                 @$"
 You are an AI language assistant specializing in American English.
 Your task is to refine and correct my English phrases to sound natural, fluent, and like a native American speaker.
@@ -24,21 +22,23 @@ Ensure the grammar, vocabulary, and tone are appropriate for casual, professiona
 If needed, provide a brief explanation of the changes.
 Here is my phrase:
 '{message}'.
-Please correct it and make it sound natural."
+Please correct it and make it sound natural.
+First message of your answer should be you version of my phrase.
+Second message of your answer should be explanation.
+Insert between messages '---' string."
             );
 
-            foreach (var content in completion.Content)
-            {
-                result.Add(content.Text);
-            }
+            var answer = completion.Content.Select(i => i.Text).FirstOrDefault() ?? String.Empty;
+
+            var messages = answer.Split("---");
+
+            return [messages[0], messages[1]];
         }
         catch (Exception ex)
         {
             SentrySdk.CaptureException(ex);
 
-            result.Add($"Error: {ex.Message}");
+            return [];
         }
-
-        return result.ToArray();
     }
 }

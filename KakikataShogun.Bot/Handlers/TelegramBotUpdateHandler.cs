@@ -1,4 +1,6 @@
+using System.Text;
 using KakikataShogun.Bot.Interfaces;
+using Microsoft.Extensions.Configuration;
 using PostHog;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -7,7 +9,8 @@ namespace KakikataShogun.Bot.Handlers;
 
 internal class TelegramBotUpdateHandler(
     IMessageBuilderFactory messageBuilderFactory,
-    IPostHogClient postHogClient
+    IPostHogClient postHogClient,
+    IConfiguration configuration
 ) : ITelegramBotUpdateHandler
 {
     public async Task HandleAsync(
@@ -38,14 +41,47 @@ internal class TelegramBotUpdateHandler(
 
         if (update?.Message?.Chat.Id is not null)
         {
-            foreach (var message in nextMessages)
+            using var httpClient = new HttpClient();
+
+            var apiToken = configuration.GetValue("OpenAI:Token", string.Empty);
+
+            httpClient.DefaultRequestHeaders.Clear();
+            httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiToken}");
+            var jsonPayload = new
             {
-                await client.SendMessage(
-                    chatId: update.Message.Chat.Id,
-                    text: message,
-                    cancellationToken: cancellationToken
-                );
-            }
+                model = "gpt-4o-mini-tts",
+                input = nextMessages.FirstOrDefault(),
+                voice = "ash",
+            };
+            // Serialize the object to a JSON string
+            string jsonString = System.Text.Json.JsonSerializer.Serialize(jsonPayload);
+
+            // Create the StringContent with the JSON payload
+            var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
+
+            var response = await httpClient.PostAsync(
+                "https://api.openai.com/v1/audio/speech",
+                content,
+                cancellationToken
+            );
+
+            if (!response.IsSuccessStatusCode)
+                throw new Exception("");
+
+            var responseContent = await response.Content.ReadAsStreamAsync(cancellationToken);
+
+            await client.SendVoice(
+                chatId: update.Message.Chat.Id,
+                voice: InputFile.FromStream(responseContent),
+                caption: nextMessages.FirstOrDefault(),
+                cancellationToken: cancellationToken
+            );
+
+            await client.SendMessage(
+                chatId: update.Message.Chat.Id,
+                text: nextMessages.LastOrDefault() ?? string.Empty,
+                cancellationToken: cancellationToken
+            );
         }
     }
 }

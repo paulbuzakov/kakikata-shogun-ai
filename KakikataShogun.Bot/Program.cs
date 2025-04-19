@@ -53,7 +53,7 @@ var host = Host.CreateDefaultBuilder(args)
                 new TelegramBotClient(configuration.GetValue("TelegramBot:Token", string.Empty))
             );
 
-            services.AddSingleton<ChatClient>(
+            services.AddSingleton(
                 new ChatClient(
                     configuration.GetValue("OpenAI:Model", string.Empty),
                     configuration.GetValue("OpenAI:Token", string.Empty)
@@ -68,4 +68,3 @@ var host = Host.CreateDefaultBuilder(args)
     .Build();
 
 await host.RunAsync(default);
-
