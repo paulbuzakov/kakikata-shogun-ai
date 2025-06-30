@@ -10,7 +10,7 @@ internal class MessageBuilderFactory(IEnumerable<IMessageBuilder> builders) : IM
 
         var result =
             builders.FirstOrDefault(builder => inputMessage.StartsWith(builder.CommandPattern))
-            ?? builders.OfType<MessageBuilders.DefaultMessageBuilder>().First();
+            ?? builders.OfType<MessageBuilders.TranslateEngMessageBuilder>().First();
 
         return result;
     }

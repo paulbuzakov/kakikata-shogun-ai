@@ -61,7 +61,8 @@ var host = Host.CreateDefaultBuilder(args)
             );
 
             services.AddTransient<IMessageBuilderFactory, MessageBuilderFactory>();
-            services.AddTransient<IMessageBuilder, DefaultMessageBuilder>();
+            services.AddTransient<IMessageBuilder, TranslateEngMessageBuilder>();
+            services.AddTransient<IMessageBuilder, TranslateRusMessageBuilder>();
             services.AddTransient<IMessageBuilder, WelcomeMessageBuilder>();
         }
     )

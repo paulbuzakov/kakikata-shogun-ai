@@ -3,7 +3,7 @@ using OpenAI.Chat;
 
 namespace KakikataShogun.Bot.MessageBuilders;
 
-internal class DefaultMessageBuilder(ChatClient openAiClient) : IMessageBuilder
+internal class TranslateEngMessageBuilder(ChatClient openAiClient) : IMessageBuilder
 {
     public string CommandPattern => "default";
 
